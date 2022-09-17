@@ -21,6 +21,12 @@ dotenv.config();
 
 //local package
 const { commandHandler } = require("./src/commandHandler");
+const { commandCustom } = require("./src/commandCustom");
+
+const master_ = process.env.HPMASTER;
+const master__ = process.env.HPMASTER2;
+const master___ = process.env.HPMASTER3;
+const master = [master_,master__,master___];
 
 async function startBot() {
     const { state, saveCreds } = await useMultiFileAuthState(
@@ -84,10 +90,16 @@ async function startBot() {
             if (upsert.type === "notify") {
                 try {
                     for (const msg of upsert.messages) {
-                        // const body = msg.message?.extendedTextMessage?.text;
-                        // console.log(body);
+                        // console.log(msg);
+                        const numberFrom = msg.key.remoteJid || '';
+                        if(!numberFrom) {
+                            console.log("[OCAN-index] Oops failed get number from!");
+                            return
+                        }
                         await commandHandler(msg,sock)
-
+                        if(master.includes(numberFrom.replace("@s.whatsapp.net",""))) {
+                            await commandCustom(msg,sock,master);
+                        }
                         // const body = msg.message?.extendedTextMessage?.text;
                         // const group = msg.message?.conversation;
                         // const namez = msg.pushName;
